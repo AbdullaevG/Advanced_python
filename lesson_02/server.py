@@ -1,5 +1,4 @@
-# first of all import library
-import socket 
+import socket
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from collections import Counter
@@ -30,54 +29,39 @@ def get_n_often_words(url, n = 10):
     words = []
     # remove prepositions
     for word in all_words:
-        if len(word) > 1:
+        if len(word) > 2:
             words.append(word)
     counter.update(words)
     most_common = counter.most_common(n)
     
-    return most_common
-    
-    
-# create a socket object
-s = socket.socket()        
-print ("Socket successfully created")
- 
-# reserve a port on your computer in our
-# case it is 8005 but it can be anything
-port = 8005               
- 
-# Next bind to the port
-# we have not typed any ip in the ip field
-# instead we have inputted an empty string
-# this makes the server listen to requests
-# coming from other computers on the network
+    return str(most_common)
 
-s.bind(('', port))        
-print ("socket binded to %s" %(port))
- 
-# put the socket into listening mode
-s.listen(5)    
-print ("socket is listening...")           
- 
-# a forever loop until we interrupt it or
-# an error occurs
-while True:
-    # Establish connection with client.
-    c, addr = s.accept()    
-    print ('Got connection from', addr )
-    recived_path = c.recv(4096).decode()
-    with open(recived_path) as urls_file:
-        for url in urls_file:       
-            top_10 = get_n_often_words(url.strip())
-            data  = pickle.dumps(top_10)
-            c.send(data)
-    
-    # send a thank you message to the client. encoding to send byte type.
-    #c.send('Process finished'.encode())
-   # c.send('Thank you for connecting'.encode())
-    
-    # Close the connection with the client
-    c.close()
-      
-    # Breaking once connection closed
-    break
+
+def server_program():
+    # get the hostname
+    port = 8011  # initiate port no above 1024
+
+    server_socket = socket.socket()  # get instance
+    # look closely. The bind() function takes tuple as argument
+    server_socket.bind(("", port))  # bind host address and port together
+
+    # configure how many client the server can listen simultaneously
+    server_socket.listen(2)
+    conn, address = server_socket.accept()  # accept new connection
+    print("Connection from: " + str(address))
+    while True:
+        # receive data stream. it won't accept data packet greater than 1024 bytes
+        
+        url = conn.recv(4096).decode()
+        if not url:
+            # if data is not received break
+            break
+        print("from connected user get url: ", url)
+        data = get_n_often_words(url, n = 10)
+        data  = pickle.dumps(data)
+        conn.send(data)  # send data to the client
+
+    conn.close()  # close the connection
+
+if __name__ == '__main__':
+    server_program()

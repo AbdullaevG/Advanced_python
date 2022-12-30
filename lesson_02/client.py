@@ -1,35 +1,38 @@
-# Import socket module
-import socket            
+import socket
 import pickle
 
-# Create a socket object
-s = socket.socket()        
- 
-# Define the port on which you want to connect
-port = 8005               
- 
-# connect to the server on local computer
-s.connect(('127.0.0.1', port))
+URLS_FILE = "urls.txt"
 
-# The client send this line to server
-urls_file_path = "./data/urls.txt"
-s.send(urls_file_path.encode())
-# receive data from the server and decoding to get the string.
-data = []
-packet = 1
-while True:
-    packet = s.recv(1024)  
-    if not packet: break
-    message = packet
-    data.append(packet)
-    data_arr = pickle.loads(b"".join(data))
-    
-    with open("client_data.txt", "w", encoding="utf-8") as output_file:
-         for item in data_arr:
-                output_file.write(str(item[0]) +": " + str(item[1]) + "\n")
+def read_urls(urls_file=URLS_FILE):
+    url_list = []
+    with open(urls_file) as file:
+        for line in file:
+            url_list.append(line.strip())
+    return url_list
 
-    #print(message.decode())
-#print(s.recv(1024).decode())
-#print(s.recv(1024).decode())
-# close the connection
-s.close()
+def client_program():
+    port = 8011  # socket server port number
+
+    client_socket = socket.socket()  # instantiate
+    client_socket.connect(("127.0.0.1", port))  # connect to the server
+
+    url_list = read_urls(urls_file=URLS_FILE)
+    url_list.append("")
+    num_files = len(url_list)
+    for url in url_list:
+        if len(url) == 0:
+            break
+        client_socket.send(url.encode())  # send message
+        data = client_socket.recv(4096) # receive response
+        data = pickle.loads(data)
+        #print('Received from server: ' + data)  # show in terminal
+        with open("result.txt", "a") as file:
+            file.write(url + "\n")
+            file.write(data)
+            file.write(3*"\n")
+    print("Client closed")
+    client_socket.close()  # close the connection
+
+
+if __name__ == '__main__':
+    client_program()
