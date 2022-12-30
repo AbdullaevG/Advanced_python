@@ -44,7 +44,7 @@ print ("Socket successfully created")
  
 # reserve a port on your computer in our
 # case it is 8005 but it can be anything
-port = 8005               
+port = 8006               
  
 # Next bind to the port
 # we have not typed any ip in the ip field
@@ -61,23 +61,18 @@ print ("socket is listening...")
  
 # a forever loop until we interrupt it or
 # an error occurs
-while True:
-    # Establish connection with client.
-    c, addr = s.accept()    
-    print ('Got connection from', addr )
+recived_path = 1
+c, addr = s.accept()
+print ('Got connection from', addr)
+
+while recived_path:
+    # Establish connection with client.  
+    print ('Got connection from', addr)
     recived_path = c.recv(4096).decode()
-    with open(recived_path) as urls_file:
-        for url in urls_file:       
-            top_10 = get_n_often_words(url.strip())
-            data  = pickle.dumps(top_10)
-            c.send(data)
-    
-    # send a thank you message to the client. encoding to send byte type.
-    #c.send('Process finished'.encode())
-   # c.send('Thank you for connecting'.encode())
-    
-    # Close the connection with the client
-    c.close()
-      
-    # Breaking once connection closed
-    break
+    print(recived_path)
+    top_10 = get_n_often_words(recived_path.strip())
+    data  = pickle.dumps(top_10)
+    c.send(data)
+    print("data is sended")
+
+s.closed()
