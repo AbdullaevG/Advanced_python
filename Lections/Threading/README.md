@@ -1,6 +1,6 @@
 # Потоки в Питоне
 
-class threading.Thread( group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None)
+- class threading.Thread( group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None)
  - group - не реализован еще, не используется, None
  - target - функция, исполнение которой прдполагается в потоке
  - name - название потока
